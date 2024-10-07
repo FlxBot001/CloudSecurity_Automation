@@ -1,27 +1,40 @@
-# Core modules
+import joblib
 import pandas as pd
-import numpy as np
-
-# Graphical representation modules
-import matplotlib.pyplot as plt
-import seaborn as sns
-import csv
-
-# Machine learning module
-from sklearn.model_selection import train_test_split
+from scapy.all import sniff
 from sklearn.preprocessing import StandardScaler
 
-# ML Model
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.svm import SVC
-from sklearn.neural_network import MLPClassifier
+# Load pre-trained model
+model = joblib.load('../ml/models/ddos_model.pkl')
+scaler = joblib.load('../ml/models/scaler.pkl')
 
-# ML Evaluation
-from sklearn.metrics import accuracy_score,f1_score, precision_score, recall_score, roc_curve, auc
+# Real-time traffic capture using Scapy
+def capture_traffic(duration=10):
+    packets = sniff(timeout=duration)
+    features = [extract_features(pkt) for pkt in packets]  # Extract features
+    return pd.DataFrame(features)
 
-from sklearn.metrics import roc_curve, auc
-from sklearn.preprocessing import label_binarize
-from itertools import cycle
+# Extract relevant features from network packets
+def extract_features(packet):
+    return {
+        'packet_size': len(packet),
+        'protocol': packet.proto,
+        'src_port': packet.sport if packet.haslayer('TCP') or packet.haslayer('UDP') else 0,
+        'dst_port': packet.dport if packet.haslayer('TCP') or packet.haslayer('UDP') else 0,
+        'src_ip': packet[0][1].src,
+        'dst_ip': packet[0][1].dst
+    }
 
-df = pd.read_csv("data/DDos.csv")
+# Predict DDoS type
+def classify_ddos(df):
+    scaled_data = scaler.transform(df[['packet_size', 'protocol', 'src_port', 'dst_port']].values)
+    predictions = model.predict(scaled_data)
+    return predictions.argmax(axis=1)
+
+# Real-time classification
+def run_classification():
+    df_traffic = capture_traffic(duration=60)
+    predictions = classify_ddos(df_traffic)
+    print(f"Detected DDoS Attacks: {predictions}")
+
+if __name__ == "__main__":
+    run_classification()
