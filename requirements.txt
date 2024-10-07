@@ -46,3 +46,14 @@ tzdata==2024.2
 urllib3==2.2.3
 wrapt==1.16.0
 zipp==3.20.2
+Flask
+Flask-SQLAlchemy
+Flask-Migrate
+Flask-Login
+Flask-Mail
+pandas
+numpy
+scikit-learn
+boto3
+joblib
+python-dotenv
