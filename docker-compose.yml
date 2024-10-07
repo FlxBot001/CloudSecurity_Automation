@@ -1,0 +1,73 @@
+version: '3.8'  # Use the latest version for better features and performance
+
+services:
+  web:
+    image: your-web-app-image:latest  # Replace with your actual web app image
+    build:
+      context: ./app
+      dockerfile: Dockerfile  # Ensure you have a Dockerfile for building the image
+    ports:
+      - "80:80"  # Map host port 80 to container port 80
+    environment:
+      - DATABASE_URL=mysql://user:password@db:3306/dbname  # Example for MySQL
+      - REDIS_URL=redis://cache:6379  # Redis connection for caching
+      - AWS_ACCESS_KEY_ID=your_access_key  # AWS credentials
+      - AWS_SECRET_ACCESS_KEY=your_secret_key  # AWS credentials
+      - NODE_ENV=production
+    depends_on:
+      - db
+      - cache
+
+  db:
+    image: mysql:5.7  # Use MySQL 5.7 as an example
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword  # Set a secure root password
+      MYSQL_DATABASE: dbname  # Database name
+      MYSQL_USER: user  # User for the database
+      MYSQL_PASSWORD: password  # User password
+    ports:
+      - "3306:3306"  # Map MySQL port
+
+  cache:
+    image: redis:alpine  # Use the lightweight Redis image
+    restart: always
+    ports:
+      - "6379:6379"  # Map Redis port
+
+  message_broker:
+    image: rabbitmq:3-management  # RabbitMQ with management UI
+    restart: always
+    ports:
+      - "5672:5672"  # RabbitMQ port
+      - "15672:15672"  # Management UI port
+
+  ml_service:
+    build:
+      context: ./ml
+      dockerfile: Dockerfile  # Dockerfile for ML service
+    volumes:
+      - ./ml/models:/app/models  # Mounting models directory for access
+    environment:
+      - DATABASE_URL=mysql://user:password@db:3306/dbname  # Database connection
+    depends_on:
+      - db
+
+  scheduler:
+    image: your-scheduler-image:latest  # Replace with your actual scheduler image
+    depends_on:
+      - web
+    environment:
+      - CRON_EXPRESSION="0 * * * *"  # Example cron job that runs every hour
+    command: ["cron", "-f"]  # Run cron in the foreground
+
+  test:
+    image: your-test-image:latest  # Replace with your actual test image
+    depends_on:
+      - web
+      - db
+    command: ["pytest", "--maxfail=1", "--disable-warnings", "-q"]
+
+volumes:
+  db_data:  # Named volume for persistent MySQL data
+  redis_data:  # Named volume for persistent Redis data

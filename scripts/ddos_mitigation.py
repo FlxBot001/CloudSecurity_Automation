@@ -4,6 +4,10 @@ import time
 import os
 import logging
 from functools import wraps
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+import joblib
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -19,6 +23,9 @@ REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
 
 # Connect to Redis
 redis_client = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
+
+# Load pre-trained DDoS classification model
+model = joblib.load("ml/models/ddos_model.pkl")
 
 def rate_limit(limit, period):
     def decorator(func):
@@ -62,7 +69,28 @@ def is_whitelisted(ip_address):
 @app.route('/api', methods=['GET'])
 @rate_limit(RATE_LIMIT, TIME_WINDOW)
 def api():
-    return jsonify({"message": "Welcome to the API!"})
+    return jsonify({"message": "Welcome to the DDoS Classification API!"})
+
+@app.route('/classify', methods=['POST'])
+@rate_limit(RATE_LIMIT, TIME_WINDOW)
+def classify_ddos():
+    # Expecting JSON input with traffic data features
+    data = request.json
+    required_features = ['packet_size', 'protocol', 'src_port', 'dst_port', 'timestamp']
+
+    if not all(feature in data for feature in required_features):
+        return jsonify({"error": "Missing required features."}), 400
+
+    # Convert incoming data to DataFrame for prediction
+    input_data = pd.DataFrame([data])
+    
+    # Perform classification using the loaded model
+    prediction = model.predict(input_data)
+    
+    # Map prediction to meaningful labels
+    classification_result = "DDoS Attack" if prediction[0] == 1 else "Normal Traffic"
+    
+    return jsonify({"classification": classification_result})
 
 @app.route('/config', methods=['GET'])
 def get_config():
