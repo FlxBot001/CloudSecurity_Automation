@@ -21,3 +21,4 @@
 2024-10-07 11:07:04,426 ERROR: Application crashed: graceful_shutdown() takes 0 positional arguments but 2 were given. Restarting... [in /home/bot/Desktop/Project/CloudSecurity_Automation/app/main.py:192]
 2024-10-07 11:08:28,760 ERROR: Application crashed: graceful_shutdown() takes 0 positional arguments but 2 were given. Restarting... [in /home/bot/Desktop/Project/CloudSecurity_Automation/app/main.py:192]
 2024-10-07 11:08:51,942 INFO: Cloud Security Automation startup [in /home/bot/Desktop/Project/CloudSecurity_Automation/app/main.py:50]
+2024-10-07 11:26:54,751 INFO: Cloud Security Automation startup [in /home/bot/Desktop/Project/CloudSecurity_Automation/app/main.py:50]

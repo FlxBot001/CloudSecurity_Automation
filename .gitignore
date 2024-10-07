@@ -1,0 +1,76 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+.wheelhouse/
+.installed.cfg
+*.egg-info/
+*.egg
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Pytest
+.cache
+*.cover
+*.coverage
+*.hypothesis/
+.pytest_cache/
+
+# Environment variables
+.env
+.env.*
+*.env
+*.local
+
+# Flask instance folder
+instance/
+
+# SQLAlchemy database files
+*.sqlite3
+*.db
+
+# IDE and editor settings
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Log files
+logs/
+*.log
+
+# Coverage reports
+htmlcov/
+.coverage
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+
+# macOS system files
+.DS_Store
+
+# Windows system files
+Thumbs.db
+ehthumbs.db
+
+# Python virtual environment
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
